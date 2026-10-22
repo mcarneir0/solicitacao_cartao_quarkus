@@ -1,11 +1,16 @@
 package br.edu.fiap.cartoes.controller;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.jwt.build.Jwt;
 import org.junit.jupiter.api.Test;
+import org.eclipse.microprofile.config.ConfigProvider;
+
+import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.notNullValue;
@@ -16,6 +21,19 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 @QuarkusTest
 class ContratoApiIntegracaoTest {
+
+    @Test
+    void tiposCartao_comTokenValido_deveRetornarDisponiveis() {
+        String token = gerarTokenValido();
+
+        given()
+            .header("Authorization", "Bearer " + token)
+        .when()
+            .get("/api/tipos-cartao")
+        .then()
+            .statusCode(200)
+            .body("nome", hasItems("ESSENCIAL", "VIAGEM"));
+    }
 
     @Test
     void openapi_deveConterAsNoveRotasDoDesafio() {
@@ -78,6 +96,20 @@ class ContratoApiIntegracaoTest {
             .body("title", equalTo("Constraint Violation"))
             .body("violations", notNullValue())
             .body("violations.size()", equalTo(2));
+    }
+
+    private String gerarTokenValido() {
+        String segredo = ConfigProvider.getConfig().getValue("security.jwt.secret", String.class);
+        String emissor = ConfigProvider.getConfig().getValue("security.jwt.issuer", String.class);
+        long agora = Instant.now().getEpochSecond();
+
+        return Jwt.issuer(emissor)
+                .subject("ana@example.com")
+                .upn("ana@example.com")
+                .issuedAt(agora)
+                .expiresAt(agora + 900)
+                .claim("usuarioId", 1L)
+                .signWithSecret(segredo);
     }
 }
 

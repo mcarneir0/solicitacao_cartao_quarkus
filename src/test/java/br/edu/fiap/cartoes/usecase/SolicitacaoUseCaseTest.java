@@ -2,8 +2,10 @@ package br.edu.fiap.cartoes.usecase;
 
 import br.edu.fiap.cartoes.dto.SolicitacaoRequest;
 import br.edu.fiap.cartoes.entity.StatusSolicitacao;
-import br.edu.fiap.cartoes.exception.RecursoNaoEncontradoException;
+import br.edu.fiap.cartoes.entity.TipoCartao;
+import br.edu.fiap.cartoes.entity.Usuario;
 import br.edu.fiap.cartoes.exception.RegraNegocioException;
+import br.edu.fiap.cartoes.exception.RecursoNaoEncontradoException;
 import br.edu.fiap.cartoes.repository.CartaoRepository;
 import br.edu.fiap.cartoes.repository.SolicitacaoCartaoRepository;
 import br.edu.fiap.cartoes.repository.TipoCartaoRepository;
@@ -17,8 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+/**
+ * Cenários unitários do caso de uso com repositórios simulados.
+ */
 @ExtendWith(MockitoExtension.class)
 class SolicitacaoUseCaseTest {
 
@@ -67,7 +73,22 @@ class SolicitacaoUseCaseTest {
 
     @Test
     void listar_comStatusOpcional_deveFiltrarSomenteSolicitacoesDoTitular() {
+        // Cenário-alvo: somente registros do usuarioId informado e filtro opcional por status.
         useCase.listar(1L, StatusSolicitacao.PENDENTE);
+    }
+
+    @Test
+    void criar_quandoTipoIndisponivel_deveRetornar409() {
+        Usuario usuario = new Usuario("Aluno", "aluno@example.com", "$2a$12$hash");
+        usuario.setId(1L);
+        TipoCartao tipo = new TipoCartao("ESSENCIAL", "desc", false);
+        tipo.setId(10L);
+
+        when(usuarios.buscarPorIdComBloqueio(1L)).thenReturn(Optional.of(usuario));
+        when(tiposCartao.buscarPorId(10L)).thenReturn(Optional.of(tipo));
+
+        assertThrows(RegraNegocioException.class, () -> useCase.criar(1L, new SolicitacaoRequest(10L)));
+        verify(solicitacoes, never()).salvar(any());
     }
 
     @Test

@@ -30,8 +30,8 @@ public class TipoCartaoRepositoryJdbc implements ConsultaTiposDisponiveis {
     @Override
     public List<TipoCartao> listarDisponiveisPorNome() {
         String sql = """
-                        SELECT *
-                        FROM tipo_cartao
+                        SELECT id, nome, descricao, disponivel
+                        FROM tipos_cartao
                         WHERE disponivel = true
                         ORDER BY nome ASC
                     """;

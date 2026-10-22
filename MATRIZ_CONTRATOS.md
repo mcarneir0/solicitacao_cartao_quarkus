@@ -4,12 +4,12 @@ Objetivo: validar rapidamente se implementacoes dos Devs 1-4 respeitam o contrat
 
 ## Checklist de validacao
 
-- [ ] Todas as 9 rotas existem com os mesmos paths e metodos.
-- [ ] As 7 rotas protegidas exigem JWT e retornam `401` sem token.
-- [ ] Nenhuma rota obrigatoria retorna `501 TODO` apos entrega dos devs.
-- [ ] Corpos e campos seguem os DTOs em `src/main/java/br/edu/fiap/cartoes/dto`.
+- [x] Todas as 9 rotas existem com os mesmos paths e metodos.
+- [x] As 7 rotas protegidas exigem JWT e retornam `401` sem token.
+- [x] Nenhuma rota obrigatoria retorna `501 TODO` apos entrega dos devs.
+- [x] Corpos e campos seguem os DTOs em `src/main/java/br/edu/fiap/cartoes/dto`.
 - [ ] Erros de regra/404/entrada usam formato de `ErroResponse`.
-- [ ] Nao ha senha/hash em respostas de cadastro/login/listagens.
+- [x] Nao ha senha/hash em respostas de cadastro/login/listagens.
 
 ## Matriz por rota
 
@@ -45,19 +45,19 @@ Mapeamento esperado:
 
 ## Casos de validacao rapida (manual)
 
-1. Cadastro valido -> `201` e sem senha no retorno.
-2. Login invalido -> `401` com mensagem generica.
-3. Rota protegida sem token -> `401`.
-4. Pedido duplicado pendente (mesmo titular e tipo) -> `409`.
-5. Token de usuario B lendo pedido de usuario A -> `404`.
-6. Cancelar duas vezes o mesmo pedido -> `409` na segunda.
-7. Emitir duas vezes a mesma solicitacao -> `409` na segunda.
+1. Cadastro valido -> `201` e sem senha no retorno. (validado)
+2. Login invalido -> `401` com mensagem generica. (pendente)
+3. Rota protegida sem token -> `401`. (validado)
+4. Pedido duplicado pendente (mesmo titular e tipo) -> `409`. (pendente)
+5. Token de usuario B lendo pedido de usuario A -> `404`. (pendente)
+6. Cancelar duas vezes o mesmo pedido -> `409` na segunda. (pendente)
+7. Emitir duas vezes a mesma solicitacao -> `409` na segunda. (pendente)
 
 ## Relacao com testes atuais
 
 - Integracao de seguranca ja implementada em `src/test/java/br/edu/fiap/cartoes/controller/SegurancaIntegracaoTest.java`.
 - Contratos OpenAPI e validacao de entrada implementados em `src/test/java/br/edu/fiap/cartoes/controller/ContratoApiIntegracaoTest.java`.
-- Testes de regra da entidade e use case estao preparados e desabilitados ate entrega dos Devs 3/4:
+- Testes de regra da entidade e do caso de uso estao ativos:
   - `src/test/java/br/edu/fiap/cartoes/entity/SolicitacaoCartaoTest.java`
   - `src/test/java/br/edu/fiap/cartoes/usecase/SolicitacaoUseCaseTest.java`
 
@@ -65,11 +65,17 @@ Mapeamento esperado:
 
 - Hoje, erros `400` de Bean Validation estao retornando no formato nativo `Constraint Violation` do Quarkus (`title`, `status`, `violations`) e nao no formato `ErroResponse`.
 - Esse comportamento foi validado por teste de integracao e deve ser decidido pelo time: manter como esta ou padronizar para `ErroResponse` tambem nos `400` de validacao.
+- Durante uma validacao de integracao, o fluxo `POST /api/auth/login` com usuario da carga inicial retornou `500` em vez de `200`; investigar emissao de token no `JwtService` e tratamento de falha no `AutenticacaoUseCase`.
 
-## Quando os outros devs entregarem
+## Resultado da execucao do roteiro (equivalente ao `requests.http`)
 
-- Remover `@Disabled` dos testes de regra.
+- `POST /api/usuarios` -> `201` (ok)
+- `POST /api/auth/login` -> `500` (bloqueia continuidade com token real)
+- `GET /api/tipos-cartao` sem token -> `401` (ok)
+- Etapas autenticadas 3b-9 com token de login -> bloqueadas pelo erro `500` no login
+
+## Proximos passos de integracao
+
 - Ajustar asserts de mensagens/codigos conforme implementacao final.
 - Executar `mvn test` e confirmar `0` falhas.
 - Rodar `requests.http` completo sem `501`.
-
