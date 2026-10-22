@@ -1,6 +1,5 @@
 package br.edu.fiap.cartoes.entity;
 import br.edu.fiap.cartoes.exception.RegraNegocioException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Cenários de transição de estado da entidade.
  * Ativar quando Dev 3 concluir os comportamentos cancelar/marcarEmitida.
  */
-@Disabled("Aguardando implementação das regras de transição em SolicitacaoCartao (Dev 3)")
 class SolicitacaoCartaoTest {
 
     @Test
