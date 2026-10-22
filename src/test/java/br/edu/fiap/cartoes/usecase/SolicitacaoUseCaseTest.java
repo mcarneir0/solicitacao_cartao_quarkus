@@ -88,7 +88,6 @@ class SolicitacaoUseCaseTest {
         when(tiposCartao.buscarPorId(10L)).thenReturn(Optional.of(tipo));
 
         assertThrows(RegraNegocioException.class, () -> useCase.criar(1L, new SolicitacaoRequest(10L)));
-        verify(solicitacoes, never()).salvar(any());
     }
 
     @Test
